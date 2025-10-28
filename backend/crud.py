@@ -1,8 +1,7 @@
-from backend.models.expense import Expense
-from backend.schemas.expense import ExpenseCreate
 from sqlalchemy.orm import Session
-from sqlalchemy import extract
-from sqlalchemy import func
+from models import Expense
+from schemas import ExpenseCreate
+from sqlalchemy import extract, func
 
 def create_expense(db: Session, expense: ExpenseCreate):
     db_expense = Expense(**expense.dict())
@@ -13,11 +12,8 @@ def create_expense(db: Session, expense: ExpenseCreate):
 
 def get_expenses(db: Session, user_id: int, month=None, year=None):
     query = db.query(Expense).filter(Expense.user_id == user_id)
-    if month and year:
-        query = query.filter(
-            extract("month", Expense.date) == month,
-            extract("year", Expense.date) == year
-        )
+    if month: query = query.filter(extract("month", Expense.date) == month)
+    if year: query = query.filter(extract("year", Expense.date) == year)
     return query.all()
 
 def get_monthly_total(db: Session, user_id: int, month: int, year: int):
